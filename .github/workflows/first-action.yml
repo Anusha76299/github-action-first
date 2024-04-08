@@ -28,3 +28,7 @@ jobs:
       run: |
         cd src
         python -m pytest add.py
+
+    - name: Access Environment Variable
+      run: |
+        echo "DEV_ENV environment variable value is ${{ secrets.DEV_ENV }}"
