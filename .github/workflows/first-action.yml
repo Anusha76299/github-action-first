@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: development
+    env:
+      APP_ID: ${{ vars.APP_ID }}
 
     strategy:
       matrix:
@@ -29,6 +32,5 @@ jobs:
         cd src
         python -m pytest add.py
 
-    - name: Access Environment Variable
-      run: |
-        echo "TEST_SECRET environment variable value is ${{ secrets.TEST_SECRET }}"
+    - name: Read a variable
+      run:  echo "MY APP_ID value in the development job is $APP_ID"
