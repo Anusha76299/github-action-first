@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-development:
     runs-on: ubuntu-latest
     environment: development
     env:
@@ -32,5 +32,37 @@ jobs:
         cd src
         python -m pytest add.py
 
-    - name: Read a variable
+    - name: Read a dev variable
       run:  echo "MY APP_ID value in the development job is $APP_ID"
+
+  build-qa:
+    runs-on: ubuntu-latest
+    environment: qa
+    env:
+      QA_ID: ${{ vars.QA_ID }}
+
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+
+    - name: Run tests
+      run: |
+        cd src
+        python -m pytest add.py
+
+    - name: Read a qa variable
+      run:  echo "MY QA_ID value in the qa job is $QA_ID"
+
+  
