@@ -2,14 +2,17 @@ name: My First GitHub Actions
 
 on:
   push:
+    branches:
+      - main # Trigger on push events to the main branch
   workflow_dispatch:
+  pull_request_review: # Trigger on pull request review events
 
 jobs:
   build-development:
     runs-on: ubuntu-latest
     environment: development
     env:
-      APP_ID: ${{ vars.APP_ID }}
+      APP_ID: ${{ vars.APP_ID }} # Assuming DEV_APP_ID is stored in GitHub Secrets
 
     strategy:
       matrix:
@@ -32,14 +35,16 @@ jobs:
         cd src
         python -m pytest add.py
 
-    - name: Read a dev variable
-      run:  echo "MY APP_ID value in the development job is $APP_ID"
+    - name: Read a variable
+      run:  echo "My APP_ID value in the development job is $APP_ID"
 
   build-qa:
     runs-on: ubuntu-latest
     environment: qa
+    needs: build-development # Wait for the development job to complete before starting the QA job
+    if: github.event_name == 'pull_request' && github.event.review.state == 'approved' # Only trigger QA build if PR review is approved
     env:
-      QA_ID: ${{ vars.QA_ID }}
+      QA_ID: ${{ vars.QA_ID }} # Assuming QA_ID is stored in GitHub Secrets
 
     strategy:
       matrix:
@@ -62,7 +67,37 @@ jobs:
         cd src
         python -m pytest add.py
 
-    - name: Read a qa variable
-      run:  echo "MY QA_ID value in the qa job is $QA_ID"
+    - name: Read a variable
+      run:  echo "My QA_ID value in the QA job is $QA_ID"
 
-  
+  build-main:
+    runs-on: ubuntu-latest
+    environment: production # Example environment for the main branch
+    needs: build-development # Optionally, wait for the development job to complete before starting the main build
+    if: github.ref == 'refs/heads/main' # Only trigger main build if changes are pushed to the main branch
+    env:
+      PROD_ID: ${{ secrets.PROD_ID }} # Assuming PROD_ID is stored in GitHub Secrets
+
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+
+    - name: Run tests
+      run: |
+        cd src
+        python -m pytest add.py
+
+    - name: Read a  qa variable
+      run:  echo "My QA_ID value in the main job is $QA_ID"
