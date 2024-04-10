@@ -3,7 +3,7 @@ name: My First GitHub Actions
 on:
   push:
     branches:
-      - main # Trigger on push events to the main branch
+      - main
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     env:
-      APP_ID: ${{ vars.APP_ID }} # Assuming DEV_APP_ID is stored in GitHub Secrets
+      APP_ID: ${{ vars.APP_ID }} 
 
     strategy:
       matrix:
@@ -42,8 +42,7 @@ jobs:
     environment: qa
     needs: build-development # Wait for the development job to complete before starting the QA job
     env:
-      QA_ID: ${{ vars.QA_ID }} # Assuming QA_ID is stored in GitHub Secrets
-
+      QA_ID: ${{ vars.QA_ID }} 
     strategy:
       matrix:
         python-version: [3.8, 3.9]
