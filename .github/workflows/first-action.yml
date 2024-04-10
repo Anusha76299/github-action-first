@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     env:
-      APP_ID: ${{ secrets.DEV_APP_ID }} # Assuming DEV_APP_ID is stored in GitHub Secrets
+      APP_ID: ${{ vars.APP_ID }} # Assuming DEV_APP_ID is stored in GitHub Secrets
 
     strategy:
       matrix:
@@ -44,7 +44,7 @@ jobs:
     needs: build-development # Wait for the development job to complete before starting the QA job
     if: github.event_name == 'pull_request' && github.event.review.state == 'approved' # Only trigger QA build if PR review is approved
     env:
-      QA_ID: ${{ secrets.QA_ID }} # Assuming QA_ID is stored in GitHub Secrets
+      QA_ID: ${{ vars.QA_ID }} # Assuming QA_ID is stored in GitHub Secrets
 
     strategy:
       matrix:
@@ -99,5 +99,5 @@ jobs:
         cd src
         python -m pytest add.py
 
-    - name: Read a variable
-      run:  echo "My PROD_ID value in the main job is $PROD_ID"
+    - name: Read a  qa variable
+      run:  echo "My QA_ID value in the main job is $QA_ID"
